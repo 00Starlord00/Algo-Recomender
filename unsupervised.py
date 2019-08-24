@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import SpectralClustering
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
@@ -17,13 +18,13 @@ def data_split(dataSet, spliSize = 0.33, yCol = -1):                            
 def cluster(dataSet, yCol = -1):
     spliSize = float(input("Enter the size of the testing dataset : "))         #User input for the testing size.
     xTrain, xTest, yTrain, yTest = data_split(dataSet, spliSize, yCol)
-    algoDict = {0: "k_means Clustering", 1: "Agglomerative Clustering"}
+    algoDict = {0: "k_means Clustering", 1: "Spectral Clustering", 2: "Agglomerative Clustering"}
     accuracyList = []
     results = []
     clusters = int(input("Enter the number of clusters : "))
     results.append(k_means(xTrain, xTest, yTest, clusters))
     results.append(agglomerative_cluster(xTrain, xTest, yTest, clusters))
-    for i in range(0,2):
+    for i in range(0,3):
         accuracyList.append(results[i][0])
     highAccuracy = max(accuracyList)                                            #Calculating the highest accuracy.
     algorithmName = algoDict[accuracyList.index(highAccuracy)]
@@ -34,7 +35,7 @@ def cluster(dataSet, yCol = -1):
     Main Computation
 '''
 
-def k_means(xTrain, xTest, yTest, clusters = 4):
+def k_means(xTrain, xTest, yTest, clusters):
     km = KMeans(n_clusters = clusters)
     km.fit(xTrain)
     xKmean = km.fit_predict(xTest)
@@ -42,6 +43,15 @@ def k_means(xTrain, xTest, yTest, clusters = 4):
     accuracy = acc*100
     save_kmeans_model = pickle.dumps(km)
     return [accuracy, save_kmeans_model]
+
+def spectral_cluster(xTrain, xTest, yTest, clusters):
+    sc = SpectralClustering(n_clusters = clusters)
+    sc.fit(xTrain)
+    xSpecClu = sc.fit_predict(xTest)
+    acc = accuracy_score(yTest, xSpecClu)
+    accuracy = acc*100
+    save_specclu_model = pickle.dumps(sc)
+    return [accuracy, save_specclu_model]
 
 def agglomerative_cluster(xTrain, xTest, yTest, clusters):
     aggc = AgglomerativeClustering(n_clusters = clusters)
