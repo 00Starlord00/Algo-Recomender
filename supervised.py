@@ -11,17 +11,18 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
-def data_sort(dataSet, yCol = -1):
+def data_split(dataSet, yCol = -1, spliSize = 0.33):                            #Splitting the dataset for the model.
     data = pd.read_csv(dataSet, header = 0)
-    data.replace('?', -9999, inplace = True)
+    data.replace('?', -9999, inplace = True)                                    #Replacing the unknown values.
     y = data.iloc[:, yCol]
     x = data.iloc[:, :yCol]
-    xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.33)
+    xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size = spliSize)
     return xTrain, xTest, yTrain, yTest
 
 def classifier(dataSet, yCol = -1):
-    algoDict = {0:"Logistic Regression", 1:"Naive Bayes", 2:"Stochastic Gradient Descent", 3:"K Nearest Neighbors", 4:"Decision Tree", 5:"Random Forest", 6:"SVM"}
-    xTrain, xTest, yTrain, yTest = data_sort(dataSet, yCol)
+    algoDict = {0:"Logistic Regression", 1:"Naive Bayes", 2:"Stochastic Gradient Descent", 3:"K Nearest Neighbors", 4:"Decision Tree", 5:"Random Forest", 6:"SVM"}  #Dictionary of the algorithms used.
+    spliSize = float(input("Enter the size of the testing dataset : "))         #User input for the testing size.
+    xTrain, xTest, yTrain, yTest = data_split(dataSet, yCol, spliSize)
     accuracyList = []
     results = []
     results.append(logistic_regression(xTrain, yTrain, xTest, yTest))
@@ -33,10 +34,14 @@ def classifier(dataSet, yCol = -1):
     results.append(svm(xTrain, yTrain, xTest, yTest))
     for i in range(0,7):
         accuracyList.append(results[i][0])
-    highAccuracy = max(accuracyList)
+    highAccuracy = max(accuracyList)                                            #Calculating the highest accuracy.
     algorithmName = algoDict[accuracyList.index(highAccuracy)]
     savedModel = results[accuracyList.index(highAccuracy)][1]
-    return algorithmName, highAccuracy, savedModel
+    return algorithmName, highAccuracy, savedModel                              #Returns the algorithm name which gave the maximum accuracy,
+                                                                                # highest accuracy and the saved model.
+'''
+    Main Computation.
+'''
 
 def logistic_regression(xTrain, yTrain, xTest, yTest):
     lr = LogisticRegression()
